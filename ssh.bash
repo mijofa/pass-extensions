@@ -34,7 +34,7 @@ if [[ ! "$ssh_dest" =~ '@' ]] ; then
     ssh_user="$(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | grep --ignore-case --color=never --only-matching --perl-regexp '^login:\s+\K.*$' | tail -n1)"
 fi
 
-ssh_options=($(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | sed --quiet 's/^ssh_option:\s\+\(.*\)$/-o"\1"/p'))
+ssh_options=($(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | sed --quiet 's/^ssh_option:\s\+\(.*\)$/-o\1/p'))
 
 # FIXME: Does *NOT* support spaces in $ssh_user, probably has issues with other special characters too
 ssh_cmd=('ssh' ${ssh_user:+-l} ${ssh_user} ${ssh_options[@]} "$ssh_dest" "$@")
