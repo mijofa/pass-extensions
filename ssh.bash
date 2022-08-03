@@ -32,15 +32,14 @@ if [[ ! "$ssh_dest" =~ '@' ]] ; then
     # NOTE: This takes the last login line to allow for a difference with the browser plugin taking the first login line.
     #       Although you really should just put the username in the 'url: ssh://' line in that case
     ssh_user="$(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | grep --ignore-case --color=never --only-matching --perl-regexp '^login:\s+\K.*$' | tail -n1)"
-
-    ## NOTE: This adds the "@" on the end of the username so that I don't need to add any extra effort to deal with a non-existent 'login:' line
-    #ssh_user="$(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | sed --quiet '/login:/ s/^.*:\s\+\(.*\)$/\1@/p')"
 fi
 
-# FIXME: Does *NOT* support spaces in $ssh_user, probably has issues with other special characters too
-ssh_cmd=('ssh' ${ssh_user:+-l} ${ssh_user} "$ssh_dest" "$@")
+ssh_options=($(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | sed --quiet 's/^ssh_option:\s\+\(.*\)$/-o"\1"/p'))
 
-first_line=$(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | head -1) || exit $?
+# FIXME: Does *NOT* support spaces in $ssh_user, probably has issues with other special characters too
+ssh_cmd=('ssh' ${ssh_user:+-l} ${ssh_user} ${ssh_options[@]} "$ssh_dest" "$@")
+
+first_line=$(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | sed --quiet '/^[^$]/{p;q}') || exit $?
 if [[ "$first_line" =~ ^-----BEGIN.* ]] ; then
     # Entire file is an ssh key, create a temporary SSH agent and use it
     # FIXME: What if the there's an SSH key in the file *and* a password at the top?
