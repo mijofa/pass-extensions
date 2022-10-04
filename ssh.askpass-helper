@@ -14,5 +14,5 @@ elif [ "$prompt_text" = "Verification code: " ] ; then
     pass otp "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD"
 else
     # Not Implemented, fallback on askpass
-    ssh-askpass "$1" "$@"
+    ssh-askpass "$prompt_text" "$@"
 fi
