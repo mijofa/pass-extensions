@@ -1,8 +1,13 @@
 #!/bin/bash
-# Import all arguments into the ssh-agent as SSH keys
-# FIXME: Ignore the first line?
-# FIXME: Treat the first line as the key's passphrase?
+# Import all arguments into the current ssh-agent as SSH keys
 
-for key_file in "$@" ; do
-    ssh-add <(pass show "$key_file")
+for PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD in "$@" ; do
+    first_line=$(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | sed --quiet '/^[^$]/{p;q}') || exit $?
+    if [[ "$first_line" =~ ^-----BEGIN.* ]] ; then
+        ssh-add <(pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD")
+    else
+        echo "First line does not start with '-----BEGIN', this is unsupported at the moment." >&2
+        # FIXME: Treat the first line as the key's passphrase?
+        exit 2
+    fi
 done
