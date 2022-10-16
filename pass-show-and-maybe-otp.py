@@ -15,6 +15,7 @@ import os
 # import subprocess
 import sys
 import urllib.parse
+import pathlib
 
 import pypass
 import pyotp
@@ -23,6 +24,8 @@ import pyotp
 REAL_PASS_PATH = '/usr/bin/pass'
 assert REAL_PASS_PATH != sys.argv[0]
 
+STORE_PATH = pathlib.Path(os.environ.get('PASSWORD_STORE_DIR', '~/.password-store')).expanduser()
+
 if len(sys.argv) != 3 or sys.argv[1] != 'show':
     # We do nothing here, just run the normal pass and move on
     # NOTE: The 2nd argument to execlp becomes the zero-th argument to the called binary
@@ -30,7 +33,7 @@ if len(sys.argv) != 3 or sys.argv[1] != 'show':
 
 # FIXME: Does this honour the PASSWORD_STORE_DIR environment variable?
 #        If not, do it yourself
-password_store = pypass.PasswordStore()
+password_store = pypass.PasswordStore(path=str(STORE_PATH))
 
 if sys.argv[2] not in password_store.get_passwords_list():
     # Simulate the same error output 'pass' gives when the entry doesn't exist
