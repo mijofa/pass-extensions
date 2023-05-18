@@ -38,7 +38,7 @@ password_store = pypass.PasswordStore(path=str(STORE_PATH))
 if sys.argv[2] not in password_store.get_passwords_list():
     # Simulate the same error output 'pass' gives when the entry doesn't exist
     print(f"Error: {sys.argv[2]} is not in the password store.", file=sys.stderr)
-    sys.exit(1)  # FIXME: Pretty sure I shouldn't call sys.exit directly, but I don't know how better to do this.
+    exit(1)
 
 # Finds OTP tokens on a standalone line,
 # OR on a line prefixed with 'OTP:'
