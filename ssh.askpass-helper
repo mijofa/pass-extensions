@@ -6,10 +6,17 @@ prompt_text="$1"
 shift
 
 # FIXME: Are this strings standardised? Specifically the 'Verification code:' one for OTP tokens?
-if [ "$prompt_text" = "Password: " ] || [[ "$prompt_text" =~ password: ]] ; then
+# The strings I've seen in production are:
+# * Password: 
+# * user@host's password:
+# * (user@host) Password: 
+# * Verification code: 
+# * (user@host) Verification code: 
+
+if [[ "$prompt_text" == "Password: " ]] || [[ "$prompt_text" =~ "password:" ]] || [[ "$prompt_text" =~ ") Password: " ]] ; then
     # Asking for normal password, grab the top line
     pass show "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD" | head -1
-elif [ "$prompt_text" = "Verification code: " ] ; then
+elif [[ "$prompt_text" == "Verification code: " ]] || [[ "$prompt_text" =~ ") Verification code: " ]] ; then
     # Asking for OTP token, just use that extension
     pass otp "$PASSWORD_STORE_SSH_ASKPASS_HELPER_RECORD"
 else
